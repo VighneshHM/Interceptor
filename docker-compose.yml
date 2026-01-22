@@ -1,0 +1,56 @@
+services:
+  # Target PostgreSQL Database (the one we're protecting)
+  postgres-target:
+    image: postgres:16-alpine
+    container_name: interceptor-postgres-target
+    environment:
+      POSTGRES_DB:  testdb
+      POSTGRES_USER:  testuser
+      POSTGRES_PASSWORD: testpass@123
+    ports:
+      - "5433:5432"  # Exposed on 5433 to avoid conflicts
+    volumes:
+      - postgres-target-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U testuser -d testdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # PostgreSQL for Interceptor's own data (users, audit, blocked queries)
+  postgres-interceptor:
+    image: postgres:16-alpine
+    container_name:  interceptor-postgres-app
+    environment:
+      POSTGRES_DB: interceptor
+      POSTGRES_USER: interceptor
+      POSTGRES_PASSWORD: interceptor123
+    ports:
+      - "5434:5432"  # Exposed on 5434
+    volumes:
+      - postgres-interceptor-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U interceptor -d interceptor"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Redis for pub/sub, session management, and real-time notifications
+  redis:
+    image:  redis:7-alpine
+    container_name: interceptor-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres-target-data:
+  postgres-interceptor-data:
+  redis-data: 

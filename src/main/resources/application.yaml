@@ -1,0 +1,72 @@
+spring:
+  application:
+    name: Interceptor
+
+  # Interceptor's own database (for users, audit, blocked queries)
+  datasource:
+    url: "jdbc: postgresql://localhost:5434/interceptor"
+    username: interceptor
+    password: interceptor123
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  # Redis configuration
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+  security:
+    user:
+      name: user
+      password: testpass@123
+
+# Proxy configuration
+proxy:
+  listen-port: 5432          # Port where proxy listens
+  target-host: localhost     # PostgreSQL target host
+  target-port: 5433          # PostgreSQL target port
+  block-by-default: true
+
+  # Critical SQL keywords that require approval
+  critical-keywords:
+    - DROP
+    - ALTER
+    - TRUNCATE
+    - DELETE
+    - GRANT
+    - REVOKE
+    - CREATE EXTENSION
+
+  # Allowed keywords that bypass blocking
+  allowed-keywords:
+    - SELECT
+    - INSERT
+    - UPDATE
+    - CREATE TABLE
+
+# Admin dashboard
+server:
+  port: 3000
+
+# JWT configuration
+jwt:
+  secret:  your-256-bit-secret-key-change-in-production-please
+  expiration: 86400000  # 24 hours in milliseconds
+
+# Peer approval configuration
+approval:
+  peer-enabled: true
+  min-votes: 2
+
+# Audit log retention
+audit:
+  retention-days: 90

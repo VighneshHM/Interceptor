@@ -5,12 +5,10 @@ import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 @Entity
-@Table(name = "blocked_queries")
+@Table(name = "audit_logs")
 @Getter
 @Setter
 @ToString
@@ -18,55 +16,32 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class BlockedQuery {
+public class AuditLog {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
-    private String connId;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private QueryType queryType;
-
-    @Column(nullable = false, length = 4000)
-    private String queryPreview;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    @Builder.Default
-    private Status status = Status.PENDING;
+    private String username;
 
     @Column(nullable = false)
-    private Instant createdAt;
+    private String action;
 
-    private Instant resolvedAt;
+    @Column(length = 4000)
+    private String details;
 
-    private String resolvedBy;
+    private String ipAddress;
 
-    @Builder.Default
-    private int approvalCount = 0;
+    @Column(nullable = false)
+    private Instant timestamp;
 
-    @Builder.Default
-    private int rejectionCount = 0;
-
-    @Builder.Default
-    private boolean requiresPeerApproval = false;
-
-    // Nonce for replay attack protection (Phase 2)
-    @Column(unique = true)
-    private String nonce;
-
-    @OneToMany(mappedBy = "blockedQuery", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
-    @ToString.Exclude
-    private List<QueryApproval> approvals = new ArrayList<>();
+    // Request hash for replay protection
+    private String requestHash;
 
     @PrePersist
     protected void onCreate() {
-        createdAt = Instant.now();
+        timestamp = Instant.now();
     }
 
     @Override
@@ -76,8 +51,8 @@ public class BlockedQuery {
         Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
         Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
         if (thisEffectiveClass != oEffectiveClass) return false;
-        BlockedQuery that = (BlockedQuery) o;
-        return getId() != null && Objects.equals(getId(), that.getId());
+        AuditLog auditLog = (AuditLog) o;
+        return getId() != null && Objects.equals(getId(), auditLog.getId());
     }
 
     @Override

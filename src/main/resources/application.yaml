@@ -31,6 +31,11 @@ spring:
       name: user
       password: testpass@123
 
+logging:
+  level:
+    org.springframework.security: debug
+    org.springframework.web: debug
+
 # Proxy configuration
 proxy:
   listen-port: 5432          # Port where proxy listens

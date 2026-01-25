@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication
 @RequiredArgsConstructor
@@ -16,6 +17,7 @@ public class InterceptorApplication {
 		SpringApplication.run(InterceptorApplication.class, args);
 	}
 
+	@Bean
 	CommandLineRunner initAdmin(AuthService authService) {
 		return args -> {
 			// Create default admin user if not exists

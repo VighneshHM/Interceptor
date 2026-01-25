@@ -1,6 +1,8 @@
 spring:
   application:
     name: Interceptor
+  main:
+    banner-mode: off
 
   # Interceptor's own database (for users, audit, blocked queries)
   datasource:

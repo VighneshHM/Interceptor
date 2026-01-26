@@ -6,7 +6,7 @@ public class ConnectionState {
 
     public final String connId;
     public volatile Channel serverChannel;
-    public volatile boolean isExtendedBatch = false;
+    public volatile boolean inExtendedBatch = false;
     public volatile StringBuilder batchQuery = new StringBuilder();
 
     public ConnectionState(String connId) {

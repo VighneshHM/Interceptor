@@ -1,10 +1,9 @@
 package com.proxy.interceptor.proxy;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-
-import javax.swing.text.html.Option;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
@@ -106,6 +105,77 @@ public class WireProtocolHandler {
             buf.resetReaderIndex();
             return Optional.empty();
         }
+    }
+
+    /*
+    * Create a PostgreSQL ErrorResponse message
+     */
+    public ByteBuf createErrorResponse(String message) {
+        // Error fields: S (Severity), V (Severity non-localized), C (Code), M (Message)
+        byte[] severity = "ERROR".getBytes(StandardCharsets.UTF_8);
+        byte[] code = "20000".getBytes(StandardCharsets.UTF_8);
+        byte[] msg = message.getBytes(StandardCharsets.UTF_8);
+
+        int length = 4 + // Length field
+                    1 + severity.length + 1 + // 'S' + severity + null
+                    1 + severity.length + 1 + // 'V' + severity + null
+                    1 + code.length + 1 + // 'C' + code + null
+                    1 + msg.length + 1 + // 'M' + message + null
+                    1;                      // Null terminator
+
+        ByteBuf buf = Unpooled.buffer(1 + length);
+        buf.writeByte('E'); // ErrorResponse
+        buf.writeInt(length);
+
+        buf.writeByte('S');
+        buf.writeBytes(severity);
+        buf.writeByte(0);
+
+        buf.writeByte('V');
+        buf.writeBytes(severity);
+        buf.writeByte(0);
+
+        buf.writeByte('C');
+        buf.writeBytes(code);
+        buf.writeByte(0);
+
+        buf.writeByte('M');
+        buf.writeBytes(msg);
+        buf.writeByte(0);
+
+        buf.writeByte(0); // End of error fields
+
+        return buf;
+    }
+
+    /*
+    * Create a ReadyForQuery message to unblock the client.
+     */
+    public ByteBuf createReadyForQuery() {
+        ByteBuf buf = Unpooled.buffer(6);
+        buf.writeByte('Z'); // ReadyForQuery
+        buf.writeInt(5); // Length
+        buf.writeByte('I'); // Transaction status: Idle
+        return buf;
+    }
+
+    /*
+    * Check if this is a Sync message (end of extended protocol batch).
+     */
+    public boolean isSyncMessage(ByteBuf buf) {
+        if (buf.readableBytes() < 5) return false;
+        buf.markReaderIndex();
+        byte type = buf.readByte();
+        buf.resetReaderIndex();
+        return type == 'S';
+    }
+
+    /*
+    * Get message type from buffer without consuming
+     */
+    public char peekMessageType(ByteBuf buf) {
+        if (buf.readableBytes() < 1) return '\0';
+        return (char) buf.getByte(buf.readerIndex());
     }
 
     /*

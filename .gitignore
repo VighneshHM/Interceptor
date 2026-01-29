@@ -9,6 +9,7 @@ postman/
 src/main/resources/creds.env
 src/main/resources/application-prod.yaml
 certs/
+src/main/resources/ssl/
 
 ### STS ###
 .apt_generated

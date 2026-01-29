@@ -23,7 +23,7 @@ public class ConfigController {
     private int proxyPort;
 
     @Value("${proxy.target-host}")
-    private int targetHost;
+    private String targetHost;
 
     @Value("${proxy.target-port}")
     private int targetPort;

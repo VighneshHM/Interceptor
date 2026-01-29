@@ -101,21 +101,10 @@ proxy:
     client-auth: true
 
   # Critical SQL keywords that require approval
-  critical-keywords:
-    - DROP
-    - ALTER
-    - TRUNCATE
-    - DELETE
-    - GRANT
-    - REVOKE
-    - CREATE EXTENSION
-    - UPDATE
-    - INSERT
+  critical-keywords: DROP,ALTER,TRUNCATE,DELETE,GRANT,REVOKE,UPDATE,INSERT,CREATE
 
   # Allowed keywords that bypass blocking
-  allowed-keywords:
-    - SELECT
-    - CREATE TABLE
+  allowed-keywords: SELECT
 
 # JWT configuration
 jwt:

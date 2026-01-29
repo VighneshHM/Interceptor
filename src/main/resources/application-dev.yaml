@@ -30,11 +30,56 @@ spring:
     user:
       name: ${SECURITY_USERNAME}
       password: ${SECURITY_PASSWORD}
+    # OAuth2 configuration
+    oauth2:
+      client:
+        registration:
+          github:
+            client-id: ${GITHUB_CLIENT_ID}
+            client-secret: ${GITHUB_CLIENT_SECRET}
+            scope:
+              - user:email
+              - read:user
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            scope:
+              - email
+              - profile
+        provider:
+          github:
+            authorization-uri: https://github.com/login/oauth/authorize
+            token-uri: https://github.com/login/oauth/access_token
+            user-info-uri: https://api.github.com/user
+            user-name-attribute: login
+          google:
+            authorization-uri: https://accounts.google.com/o/oauth2/v2/auth
+            token-uri: https://oauth2.googleapis.com/token
+            user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
+            user-name-attribute: sub
 
+# Logging
 logging:
   level:
     org.springframework.security: debug
     org.springframework.web: debug
+
+# SSL/TLS Configuration
+server:
+  port: 3000
+  ssl:
+    enabled: true
+    key-store: ${KEY_STORE}
+    key-store-password: ${KEY_STORE_PASSWORD}
+    key-store-type: ${KEY_STORE_TYPE}
+    # For mutual TLS (client certificate auth)
+    trust-store: ${TRUST_STORE}
+    trust-store-password: ${TRUST_STORE_PASSWORD}
+    trust-store-type: ${TRUST_STORE_TYPE}
+    client-auth: need
+  # HTTP/2 support
+  http2:
+    enabled: true
 
 # Proxy configuration
 proxy:
@@ -59,10 +104,6 @@ proxy:
   allowed-keywords:
     - SELECT
     - CREATE TABLE
-
-# Admin dashboard
-server:
-  port: 3000
 
 # JWT configuration
 jwt:

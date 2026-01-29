@@ -6,7 +6,7 @@ target/
 docs/
 .postman/
 postman/
-tests/
+test-interceptor.sh
 
 ### STS ###
 .apt_generated

@@ -6,6 +6,7 @@ target/
 docs/
 .postman/
 postman/
+tests/
 
 ### STS ###
 .apt_generated
